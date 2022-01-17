@@ -1,5 +1,5 @@
 CC=gcc
-CC_FLAGS=-static
+CC_FLAGS=-static -O2
 
 %.o : %.c
 	$(CC) -c $(CC_FLAGS) $< -o $@
