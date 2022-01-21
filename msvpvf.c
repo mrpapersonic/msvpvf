@@ -105,43 +105,56 @@ int main(int argc, char *argv[]) {
 				printf("msvpvf by Paper\nusage: %s (-i/--input) infile [(-o/--output) outfile] (-v/--version) version (-t/--type) [vf, veg]", argv[0]);
 				return 0;
 		}
+	if (strcmp(args.input, " ") == 0) {
+		printf("Input file name?\n");
+		fflush(stdout);
+		fgets(args.input, sizeof(args.input)-1, stdin);
+		args.input[strcspn(args.input, "\r\n")] = 0;
+	}
+	if (access(args.input, F_OK) != 0) {
+		fprintf(stderr, "Input file \"%s\" doesn't exist! Exiting.", args.input);
+		return 1;
+	}
+	if (fgetc(fopen(args.input, "r")) == EOF) {
+		fprintf(stderr, "Input file \"%s\" is empty.", args.input);
+		return 1;
+	}
+	FILE* input_file = fopen(args.input, "r");
+	fseek(input_file, 0x46, SEEK_SET);
+	printf("Input file version: %d\n", fgetc(input_file));
+	fseek(input_file, 0x18, SEEK_SET);
+	int file_version = fgetc(input_file);
+	printf("Input file type: ");
+	if (file_version == 0xEF) {
+		printf("VEGAS Pro\n\n");
+	} else if (file_version == 0xF6) {
+		printf("Movie Studio\n\n");
+	} else {
+		printf("Unknown\n\n");
+	}
 	int* ptr = &args.version;
-	if (argc <= 5) {
-		if (strcmp(args.input, " ") == 0) {
-			printf("Input file name?\n");
-			fflush(stdout);
-			fgets(args.input, sizeof(args.input)-1, stdin);
-			args.input[strcspn(args.input, "\r\n")] = 0;
-		}
-		if (strcmp(args.output, " ") == 0) {
-			char* temp;
-			temp = strncat(strncat("PRO_V", (char*)(intptr_t)args.version, 7), args.input, 127);
-			char* file_extension = strrchr(args.input, ('.'));  /* this won't work if your path is /path.to/file but why would you do that in the first place */
-			strncpy(args.output, strncat(strncat(strremove(temp, file_extension), ".", 127), args.type, 127), 127);
-		}
-		if (args.version == -1) {
-			printf("What version would you like to convert to?\n");
-			fflush(stdout);
-			scanf("%d", ptr);
-		}
-		if (strcmp(args.type, " ") == 0) {
-			printf("Which type of project file would you like to use?[veg/vf]:\n");
-			fflush(stdout);
-			fgets(args.type, sizeof(args.input)-1, stdin);
-			args.type[strcspn(args.type, "\r\n")] = 0;
-		}
-		if (argc == 1) {
-			printf("msvpvf by Paper\nusage: %s -i infile [-o outfile] -v version -t [vf, veg]", argv[0]);
-			return 0;
-		}
+	if (args.version == -1) {
+		printf("What version of VEGAS would you like to spoof to?: ");
+		fflush(stdout);
+		scanf("%d", ptr);
 	}
-	if (access(args.input, F_OK) != 0) {  /* input file doesn't exist */
-		fprintf(stderr, "Input file %s doesn't exist! Exiting.", args.input);
-		return 1;
+	if (strcmp(args.type, " ") == 0) {
+		printf("Would you like it to be VEGAS Pro or Movie Studio? [veg/vf]: ");
+		fflush(stdout);
+		scanf("%3s", args.type);
 	}
-	if (fgetc(fopen(args.input, "r")) == EOF) {  /* input file is empty */
-		fprintf(stderr, "Input file %s is empty.", args.input);
-		return 1;
+	fflush(stdout);
+	if (strcmp(args.output, " ") == 0) { /* string manipulation hell */
+		char temp[128] = {'V'};
+		char str_version[16] = {};
+		sprintf(str_version, "%d", args.version);
+		strncat(temp, str_version, 2);
+		strncat(temp, "_", 1);
+		strncat(temp, args.input, 120);
+		strcpy(temp, strremove(temp, strrchr(args.input, ('.')))); /* remove file extension */
+		strncat(temp, ".", 1);
+		strncat(temp, args.type, 3);
+		strncpy(args.output, temp, 127);
 	}
 	if (strcmp(args.type, "veg") == 0) {
 		unsigned char T[] = {0xEF, 0x29, 0xC4, 0x46, 0x4A, 0x90, 0xD2, 0x11, 0x87, 0x22, 0x00, 0xC0, 0x4F, 0x8E, 0xDB, 0x8A};
@@ -158,7 +171,21 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	copy_file(args.input, args.output);
+#ifdef _WIN32
+	if (strcspn(args.input, "<>:\"/\\|?*") == strlen(args.input)+1) {
+#elif defined(__unix__)
+	if (strcspn(args.input, "/") == strlen(args.input)+1) {
+#else
+	if (NULL) {
+#endif
+		fprintf(stderr, "Invalid output filename detected! Exiting...")
+		return 1;
+	}
 	outfile = fopen(args.output, "r+b");
+	if (outfile == NULL) {
+		fprintf(stderr, "Failed to open file %s! Is the filename invalid?", args.output);
+		return 1;
+	}
 	set_data(magic, args.version, outfile);
 	fclose(outfile);
 	return 0;
