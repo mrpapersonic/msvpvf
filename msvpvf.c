@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
 #else
 	if (NULL) {
 #endif
-		fprintf(stderr, "Invalid output filename detected! Exiting...")
+		fprintf(stderr, "Invalid output filename detected! Exiting...");
 		return 1;
 	}
 	outfile = fopen(args.output, "r+b");
