@@ -1,13 +1,16 @@
-CC=clang  # clang cause gcc throws compiling errors that i don't know how to fix
-CC_FLAGS=-Wall -static -O2
-LD_FLAGS=-ffunction-sections
+CC=clang
+CC_FLAGS=-Wall -O2
+LD_FLAGS=
 
-%.o : %.c
+src/%.o : src/%.c
 	$(CC) -c $(CC_FLAGS) $< -o $@
 
-msvpvf: msvpvf.o
+msvpvf: src/main.o
 	$(CC) -o $@ $< $(CC_FLAGS) $(LD_FLAGS)
 
+# GUI is windows-only, please use cross-compiler!
+gui: src/gui.o
+	$(CC) -o $@ $< $(CC_FLAGS) $(LD_FLAGS) -mwindows
+
 clean:
-	rm -f *.o
-	rm -f msvpvf msvpvf.exe
+	rm -f src/*.o *.exe msvpvf gui

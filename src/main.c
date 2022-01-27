@@ -1,18 +1,13 @@
-/* Movie Studio / Vegas Pro version spoofer 
+/* Movie Studio / Vegas Pro version spoofer
  * by Paper
 */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <getopt.h>
 #include <inttypes.h>
-#include <string.h>
-#include <stdlib.h>
-#if __STDC_VERSION__ >= 199901L
 #include <stdbool.h>
-#else
-typedef enum { false, true } bool;  /* less than C99 */
-#endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../include/common.h"
 #ifdef _MSC_VER
 #define strdup(p) _strdup(p)
 #endif
@@ -50,11 +45,13 @@ int copy_file(char* source_file, char* target_file) {
 	FILE *source, *target;
 
 	source = fopen(source_file, "rb");
-	if (source == NULL) {
-		return 1;
-	}
+
+	if (source == NULL) return 1;
+
 	target = fopen(target_file, "wb");
+
 	if (target == NULL) {
+		fclose(source);
 		return 1;
 	}
 
@@ -95,16 +92,20 @@ int main(int argc, char *argv[]) {
 				strncpy(args.output, optarg, sizeof(args.input)-1);
 				break;
 			case 'v':
-				args.version = abs(atoi(strdup(optarg)));  /* abs() for possible negative inputs */
+				args.version = abs(atoi(strcpy(optarg)));  /* abs() for possible negative inputs */
 				break;
 			case 't':
 				strncpy(args.type, optarg, sizeof(args.input)-1);
 				break;
 			case 'h':
 			default:
-				printf("msvpvf by Paper\nusage: %s (-i/--input) infile [(-o/--output) outfile] (-v/--version) version (-t/--type) [vf, veg]", argv[0]);
+				printf("msvpvf by Paper\nusage: %s (-i/--input) infile [(-o/--output) outfile] (-v/--version) version (-t/--type) [vf, veg]\n", argv[0]);
 				return 0;
 		}
+	if (argc == 1) {
+		printf("msvpvf by Paper\nusage: %s (-i/--input) infile [(-o/--output) outfile] (-v/--version) version (-t/--type) [vf, veg]\n", argv[0]);
+		return 0;
+	}
 	if (strcmp(args.input, " ") == 0) {
 		printf("Input file name?\n");
 		fflush(stdout);
@@ -115,11 +116,12 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "Input file \"%s\" doesn't exist! Exiting.", args.input);
 		return 1;
 	}
-	if (fgetc(fopen(args.input, "r")) == EOF) {
+	FILE* input_file = fopen(args.input, "r");
+	if (fgetc() == EOF) {
 		fprintf(stderr, "Input file \"%s\" is empty.", args.input);
+		fclose(input_file);
 		return 1;
 	}
-	FILE* input_file = fopen(args.input, "r");
 	fseek(input_file, 0x46, SEEK_SET);
 	printf("Input file version: %d\n", fgetc(input_file));
 	fseek(input_file, 0x18, SEEK_SET);
@@ -157,12 +159,12 @@ int main(int argc, char *argv[]) {
 		strncpy(args.output, temp, 127);
 	}
 	if (strcmp(args.type, "veg") == 0) {
-		unsigned char T[] = {0xEF, 0x29, 0xC4, 0x46, 0x4A, 0x90, 0xD2, 0x11, 0x87, 0x22, 0x00, 0xC0, 0x4F, 0x8E, 0xDB, 0x8A};
+		const unsigned char T[] = {0xEF, 0x29, 0xC4, 0x46, 0x4A, 0x90, 0xD2, 0x11, 0x87, 0x22, 0x00, 0xC0, 0x4F, 0x8E, 0xDB, 0x8A};
 		for (option_index = 0; option_index <= 15; option_index++) {
 			magic[option_index] = T[option_index];
 		}
 	} else if (strcmp(args.type, "vf") == 0) {
-		unsigned char T[] = {0xF6, 0x1B, 0x3C, 0x53, 0x35, 0xD6, 0xF3, 0x43, 0x8A, 0x90, 0x64, 0xB8, 0x87, 0x23, 0x1F, 0x7F};
+		const unsigned char T[] = {0xF6, 0x1B, 0x3C, 0x53, 0x35, 0xD6, 0xF3, 0x43, 0x8A, 0x90, 0x64, 0xB8, 0x87, 0x23, 0x1F, 0x7F};
 		for (option_index = 0; option_index <= 15; option_index++) {
 			magic[option_index] = T[option_index];
 		}
@@ -183,7 +185,7 @@ int main(int argc, char *argv[]) {
 	}
 	outfile = fopen(args.output, "r+b");
 	if (outfile == NULL) {
-		fprintf(stderr, "Failed to open file %s! Is the filename invalid?", args.output);
+		fprintf(stderr, "Failed to open file %s! Do you have write permissions?", args.output);
 		return 1;
 	}
 	set_data(magic, args.version, outfile);
