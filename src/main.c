@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
 				strncpy(args.output, optarg, sizeof(args.input)-1);
 				break;
 			case 'v':
-				args.version = abs(atoi(strcpy(optarg)));  /* abs() for possible negative inputs */
+				args.version = abs(atoi(strdup(optarg)));  /* abs() for possible negative inputs */
 				break;
 			case 't':
 				strncpy(args.type, optarg, sizeof(args.input)-1);
@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	FILE* input_file = fopen(args.input, "r");
-	if (fgetc() == EOF) {
+	if (fgetc(input_file) == EOF) {
 		fprintf(stderr, "Input file \"%s\" is empty.", args.input);
 		fclose(input_file);
 		return 1;
