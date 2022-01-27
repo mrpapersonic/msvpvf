@@ -73,10 +73,10 @@ int main(int argc, char *argv[]) {
 	unsigned char magic[16];
 	FILE* outfile;
 	struct arguments {
-		char input[128];
-		char output[128];
+		char input[256];
+		char output[256];
 		int version;
-		char type[128];
+		char type[256];
 	} args;
 	strcpy(args.input, " ");
 	strcpy(args.output, " ");
@@ -147,16 +147,16 @@ int main(int argc, char *argv[]) {
 	}
 	fflush(stdout);
 	if (strcmp(args.output, " ") == 0) { /* string manipulation hell */
-		char temp[128] = {'V'};
+		char temp[256] = {'V'};
 		char str_version[16] = {};
 		sprintf(str_version, "%d", args.version);
 		strncat(temp, str_version, 2);
 		strncat(temp, "_", 1);
-		strncat(temp, args.input, 120);
+		strncat(temp, args.input, 248);
 		strcpy(temp, strremove(temp, strrchr(args.input, ('.')))); /* remove file extension */
 		strncat(temp, ".", 1);
 		strncat(temp, args.type, 3);
-		strncpy(args.output, temp, 127);
+		strncpy(args.output, temp, 255);
 	}
 	if (strcmp(args.type, "veg") == 0) {
 		const unsigned char T[] = {0xEF, 0x29, 0xC4, 0x46, 0x4A, 0x90, 0xD2, 0x11, 0x87, 0x22, 0x00, 0xC0, 0x4F, 0x8E, 0xDB, 0x8A};

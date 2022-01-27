@@ -11,7 +11,7 @@
 
 HWND hWndListBox, hWndComboBox;
 int16_t version = 11, type = 1; /* type: 0 is vf, 1 is veg */
-char* file_name = " "; /* initialize as a space, a filename cannot literally just be a space */
+char* file_name = " "; /* initialize as a space, a (windows) filename can't just be a space */
 
 void set_data(unsigned char magic[], uint16_t version, FILE* target) {
 	int i;
@@ -64,14 +64,14 @@ void display_file(char* path) {
 
 char* open_file(HWND hWnd) {
 	OPENFILENAME ofn;
-	char filename[127];
+	char filename[256];
 
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
 	ofn.lStructSize = sizeof(OPENFILENAME);
 	ofn.hwndOwner = hWnd;
 	ofn.lpstrFile = filename;
 	ofn.lpstrFile[0] = '\0';
-	ofn.nMaxFile = 127;
+	ofn.nMaxFile = 256;
 	ofn.lpstrFilter = "Project files\0*.veg;*.vf\0All files\0*.*\0";
 	ofn.nFilterIndex = 1;
 
@@ -88,14 +88,14 @@ void save_file(HWND hWnd, char* input_file) {
 		return;
 	}
 	OPENFILENAME ofn;
-	char output_file[127];
+	char output_file[256];
 
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
 	ofn.lStructSize = sizeof(OPENFILENAME);
 	ofn.hwndOwner = hWnd;
 	ofn.lpstrFile = output_file;
 	ofn.lpstrFile[0] = '\0';
-	ofn.nMaxFile = 127;
+	ofn.nMaxFile = 256;
 	ofn.lpstrFilter = "Project files\0*.veg\0All files\0*.*\0";
 	ofn.nFilterIndex = 1;
 
