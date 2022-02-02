@@ -1,13 +1,10 @@
-/* Movie Studio / Vegas Pro version spoofer
- * by Paper
-*/
-
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../include/common.h"
+#include <unistd.h>
+#include <getopt.h>
 #ifdef _MSC_VER
 #define strdup(p) _strdup(p)
 #endif
