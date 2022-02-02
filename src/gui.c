@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <commdlg.h>
-#include "../include/common.h"
 #define OPEN_FILE_BUTTON 0
 #define COMBOBOX         1
 #define LISTBOX          2
