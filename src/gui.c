@@ -95,8 +95,8 @@ void save_file(HWND hWnd, char* input_file) {
 	ofn.lpstrFile = output_file;
 	ofn.lpstrFile[0] = '\0';
 	ofn.nMaxFile = 256;
-	ofn.lpstrFilter = "Project files\0*.veg\0All files\0*.*\0";
-	ofn.nFilterIndex = 1;
+	ofn.lpstrFilter = "Movie Studio project files\0*.vf\0VEGAS Pro project files\0*.veg\0All files\0*.*\0";
+	ofn.nFilterIndex = type+1;
 
 	GetSaveFileName(&ofn);
 
