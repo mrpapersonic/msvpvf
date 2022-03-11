@@ -20,7 +20,7 @@ static struct option options_long[] = {
 char* strremove(char* str, const char* sub) {
     size_t len = strlen(sub);
     if (len > 0) {
-        char *p = str;
+        char* p = str;
         while ((p = strstr(p, sub)) != NULL) {
             memmove(p, p + len, strlen(p + len) + 1);
         }
@@ -124,12 +124,16 @@ int main(int argc, char *argv[]) {
 	fseek(input_file, 0x18, SEEK_SET);
 	int file_version = fgetc(input_file);
 	printf("Input file type: ");
-	if (file_version == 0xEF) {
-		printf("VEGAS Pro\n\n");
-	} else if (file_version == 0xF6) {
-		printf("Movie Studio\n\n");
-	} else {
-		printf("Unknown\n\n");
+	switch (file_version) {
+		case 0xEF:
+			printf("VEGAS Pro\n\n");
+			break;
+		case 0xF6:
+			printf("Movie Studio\n\n");
+			break;
+		default:
+			printf("Unknown\n\n");
+			break;
 	}
 	int* ptr = &args.version;
 	if (args.version == -1) {
@@ -157,7 +161,7 @@ int main(int argc, char *argv[]) {
 	}
 	if (strcmp(args.type, "veg") == 0) {
 		const unsigned char T[] = {0xEF, 0x29, 0xC4, 0x46, 0x4A, 0x90, 0xD2, 0x11, 0x87, 0x22, 0x00, 0xC0, 0x4F, 0x8E, 0xDB, 0x8A};
-		for (option_index = 0; option_index <= 15; option_index++) {
+		for (option_index = 0; option_index <= 15; option_index++) { /* this line is repeated, but it's probably best to just leave it be. */
 			magic[option_index] = T[option_index];
 		}
 	} else if (strcmp(args.type, "vf") == 0) {
@@ -170,7 +174,7 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	copy_file(args.input, args.output);
-#ifdef _WIN32
+#ifdef _WIN32 /* disallowed characters in filenames */
 	if (strcspn(args.input, "<>:\"/\\|?*") == strlen(args.input)+1) {
 #elif defined(__unix__)
 	if (strcspn(args.input, "/") == strlen(args.input)+1) {
