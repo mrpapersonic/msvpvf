@@ -37,7 +37,7 @@ int16_t version = 11;
 enum type {
 	vf,
 	veg
-}
+};
 char* file_name = " ";
 
 void set_data(unsigned char magic[], uint16_t version, FILE* target) {
@@ -145,7 +145,7 @@ void save_file(HWND hWnd, char* input_file) {
 									 0x87, 0x22, 0x00, 0xC0, 0x4F, 0x8E, 0xDB, 0x8A};
 			set_data(magic, version, output);
 			break;
-		case veg:
+		default:
 			unsigned char magic[] = {0xF6, 0x1B, 0x3C, 0x53, 0x35, 0xD6, 0xF3, 0x43, 
 									 0x8A, 0x90, 0x64, 0xB8, 0x87, 0x23, 0x1F, 0x7F};
 			set_data(magic, version, output);
