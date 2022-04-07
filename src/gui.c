@@ -128,7 +128,7 @@ void save_file(HWND hWnd, char* input_file) {
 	ofn.lpstrFile[0] = '\0';
 	ofn.nMaxFile = 256;
 	ofn.lpstrFilter = "Movie Studio project files\0*.vf\0VEGAS Pro project files\0*.veg\0All files\0*.*\0";
-	ofn.nFilterIndex = type+1;
+	ofn.nFilterIndex = (int)type+1;
 
 	GetSaveFileName(&ofn);
 
@@ -139,17 +139,19 @@ void save_file(HWND hWnd, char* input_file) {
 		return;
 	}
 
-	switch (type) {
-		case vf:
+	switch ((int)type) {
+		case vf: {
 			unsigned char magic[] = {0xEF, 0x29, 0xC4, 0x46, 0x4A, 0x90, 0xD2, 0x11, 
 									 0x87, 0x22, 0x00, 0xC0, 0x4F, 0x8E, 0xDB, 0x8A};
 			set_data(magic, version, output);
 			break;
-		default:
+		}
+		default: {
 			unsigned char magic[] = {0xF6, 0x1B, 0x3C, 0x53, 0x35, 0xD6, 0xF3, 0x43, 
 									 0x8A, 0x90, 0x64, 0xB8, 0x87, 0x23, 0x1F, 0x7F};
 			set_data(magic, version, output);
 			break;
+		}
 	}
 
 	fclose(output);
