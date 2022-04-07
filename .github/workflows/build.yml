@@ -21,7 +21,7 @@ jobs:
       with:
         msystem: ${{matrix.sys}}
         install: >-
-          mingw-w64-${{matrix.env}}-make
+          make
           mingw-w64-${{matrix.env}}-clang
     - uses: actions/checkout@v2
     - name: make
