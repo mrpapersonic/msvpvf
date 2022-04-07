@@ -1,0 +1,52 @@
+name: msvpvf CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-win:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    strategy:
+      matrix:
+        include:
+          - { sys: mingw64, env: x86_64 }
+          - { sys: mingw32, env: i686 }
+    steps:
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: ${{matrix.sys}}
+        install: >-
+          xdelta3
+          wget
+          p7zip
+    - uses: actions/checkout@v2
+    - name: make
+      run: |
+        make
+        make gui
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: msvpvf-win-${{matrix.env}}-${{ github.sha }}
+        path: |
+          gui.exe
+          msvpvf.exe
+  build-mac:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: make
+      run: | 
+        make
+        gzip -k msvpvf
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: msvpvf-osx-${{ github.sha }}
+        path: |
+          msvpvf.gz
