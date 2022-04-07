@@ -1,3 +1,27 @@
+/**
+ * msvpvf GUI for Windows 
+ * Copyright (c) Paper 2022
+ *
+ * View this file with 4-tab spacing; if you don't it will be a formatting nightmare.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+**/
 #include <stdio.h>
 #include <windows.h>
 #include <stdint.h>
@@ -9,8 +33,12 @@
 #define SAVE_FILE_BUTTON 3
 
 HWND hWndListBox, hWndComboBox;
-int16_t version = 11, type = 1; /* type: 0 is vf, 1 is veg */
-char* file_name = " "; /* initialize as a space, a (windows) filename can't just be a space */
+int16_t version = 11;
+enum type {
+	vf,
+	veg
+}
+char* file_name = " ";
 
 void set_data(unsigned char magic[], uint16_t version, FILE* target) {
 	int i;
@@ -23,6 +51,7 @@ void set_data(unsigned char magic[], uint16_t version, FILE* target) {
 }
 
 int copy_file(char* source_file, char* target_file) {
+	/* Copy a file */
 	FILE *source, *target;
 
 	source = fopen(source_file, "rb");
@@ -83,7 +112,10 @@ char* open_file(HWND hWnd) {
 
 void save_file(HWND hWnd, char* input_file) {
 	if (strcmp(input_file, " ") == 0) {
-		MessageBoxW(hWnd, L"Please open a file first!", L"Invalid input file!", MB_ICONEXCLAMATION); 
+		MessageBoxW(hWnd, 
+					L"Please open a file first!", 
+					L"Invalid input file!", 
+					MB_ICONEXCLAMATION); 
 		return;
 	}
 	OPENFILENAME ofn;
@@ -107,24 +139,45 @@ void save_file(HWND hWnd, char* input_file) {
 		return;
 	}
 
-	if (type == 1) {
-		unsigned char magic[] = {0xEF, 0x29, 0xC4, 0x46, 0x4A, 0x90, 0xD2, 0x11, 0x87, 0x22, 0x00, 0xC0, 0x4F, 0x8E, 0xDB, 0x8A};
-		set_data(magic, version, output);
-	} else {
-		unsigned char magic[] = {0xF6, 0x1B, 0x3C, 0x53, 0x35, 0xD6, 0xF3, 0x43, 0x8A, 0x90, 0x64, 0xB8, 0x87, 0x23, 0x1F, 0x7F};
-		set_data(magic, version, output);
+	switch (type) {
+		case vf:
+			unsigned char magic[] = {0xEF, 0x29, 0xC4, 0x46, 0x4A, 0x90, 0xD2, 0x11, 
+									 0x87, 0x22, 0x00, 0xC0, 0x4F, 0x8E, 0xDB, 0x8A};
+			set_data(magic, version, output);
+			break;
+		case veg:
+			unsigned char magic[] = {0xF6, 0x1B, 0x3C, 0x53, 0x35, 0xD6, 0xF3, 0x43, 
+									 0x8A, 0x90, 0x64, 0xB8, 0x87, 0x23, 0x1F, 0x7F};
+			set_data(magic, version, output);
+			break;
 	}
 
 	fclose(output);
 }
 
 void AddControls(HWND hWnd) {
-	/* versions */
-	hWndComboBox = CreateWindowW(L"ComboBox", NULL, CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | WS_VSCROLL, (int)((225 - 50)/2), 30, 50, 200, hWnd, (HMENU)COMBOBOX, NULL, NULL);
-	TCHAR versions[][10] = {TEXT("8"), TEXT("9"), TEXT("10"), TEXT("11"), TEXT("12"), TEXT("13"), TEXT("14"), TEXT("15"), TEXT("16"), TEXT("17"), TEXT("18"), TEXT("19")};
+	/* Versions */
+	hWndComboBox = CreateWindowW(L"ComboBox", NULL,
+								 CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | WS_VSCROLL,
+								 (int)((225 - 50)/2), 30, 50, 200, 
+								 hWnd, (HMENU)COMBOBOX, NULL, NULL); /**
+																	  * I don't understand what half of 
+																	  * these arguments are for, so chances
+																	  * are that you don't either. 
+																	 **/
+	TCHAR versions[][10] = {TEXT("8"), TEXT("9"), TEXT("10"), 
+							TEXT("11"), TEXT("12"), TEXT("13"), 
+							TEXT("14"), TEXT("15"), TEXT("16"), 
+							TEXT("17"), TEXT("18"), TEXT("19")};
 
 	TCHAR A[16];
 
+	/**
+	 * Here we can't just use a for loop 
+	 * and cast all of those to `TEXT()`.
+	 * Why? I don't know. My brain is too
+	 * small to figure it out.
+	**/
 	memset(&A,0,sizeof(A));
 	int i = 0;
 	for (i = 0; i <= 11; i++) {
@@ -132,9 +185,9 @@ void AddControls(HWND hWnd) {
 		SendMessage(hWndComboBox, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)A);
 	}
 	SendMessage(hWndComboBox, CB_SETCURSEL, (WPARAM)3, (LPARAM)0);
-	/* open file */
+	/* Open File */
 	HWND open_button = CreateWindowW(L"Button", L"Open", WS_VISIBLE | WS_CHILD, (int)((225 - 50)/2), 5, 50, 20, hWnd, (HMENU)OPEN_FILE_BUTTON, NULL, NULL);
-	/* type */
+	/* Type */
 	TCHAR listbox_items[][13] = {TEXT("VEGAS Pro"), TEXT("Movie Studio")};
 	hWndListBox = CreateWindowW(L"Listbox", NULL, WS_VISIBLE | WS_CHILD | LBS_STANDARD | LBS_NOTIFY, (int)((225 - 100)/2), 55, 100, 40, hWnd, (HMENU)LISTBOX, NULL, NULL);
 	for (i = 0; i < ARRAYSIZE(listbox_items); i++) {
@@ -142,7 +195,7 @@ void AddControls(HWND hWnd) {
 		SendMessage(hWndListBox, LB_SETITEMDATA, pos, (LPARAM) i);
 	}
 	SendMessage(hWndListBox, LB_SETCURSEL, (WPARAM)0, (LPARAM)0);
-	/* save file */
+	/* Save File */
 	HWND save_button = CreateWindowW(L"Button", L"Save", WS_VISIBLE | WS_CHILD, (int)((225 - 50)/2), 90, 50, 20, hWnd, (HMENU)SAVE_FILE_BUTTON, NULL, NULL);
 	if (open_button == NULL || save_button == NULL || hWndListBox == NULL || hWndComboBox == NULL)
 		MessageBoxW(hWnd, L"how did you even trigger this", L"GUI could not be initialized!", MB_ICONEXCLAMATION); 
