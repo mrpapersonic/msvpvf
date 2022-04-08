@@ -37,7 +37,8 @@ int16_t version = 13;
 enum types {
 	vf,
 	veg
-} type;
+};
+enum types type;
 char* file_name = " ";
 
 void set_data(unsigned char magic[], uint16_t version, FILE* target) {
