@@ -26,6 +26,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: make
       run: |
+        export CC=clang
         make
         make gui
         strip msvpvf.exe
