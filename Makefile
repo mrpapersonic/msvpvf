@@ -1,4 +1,3 @@
-CC=clang
 CC_FLAGS=-Wall -O2
 LD_FLAGS=
 
