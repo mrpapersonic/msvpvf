@@ -34,10 +34,10 @@
 
 HWND hWndListBox, hWndComboBox;
 int16_t version = 13;
-static enum type {
+enum types {
 	vf,
 	veg
-};
+} type;
 char* file_name = " ";
 
 void set_data(unsigned char magic[], uint16_t version, FILE* target) {
