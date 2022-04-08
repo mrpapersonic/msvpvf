@@ -37,8 +37,7 @@ int16_t version = 13;
 enum types {
 	vf,
 	veg
-};
-enum types type;
+} type;
 char* file_name = " ";
 
 void set_data(unsigned char magic[], uint16_t version, FILE* target) {
@@ -216,7 +215,7 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 				if (LOWORD(wParam) == COMBOBOX)
 					version = (int16_t)(8+SendMessage((HWND) lParam, (UINT) CB_GETCURSEL, (WPARAM) 0, (LPARAM) 0));
 				if (LOWORD(wParam) == LISTBOX)
-					type = (types)SendMessage((HWND) lParam, (UINT) LB_GETCURSEL, (WPARAM) 0, (LPARAM) 0);
+					type = (type)SendMessage((HWND) lParam, (UINT) LB_GETCURSEL, (WPARAM) 0, (LPARAM) 0);
 			}
 			switch(wParam) {
 				case OPEN_FILE_BUTTON:
