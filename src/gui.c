@@ -33,11 +33,11 @@
 #define SAVE_FILE_BUTTON 3
 
 HWND hWndListBox, hWndComboBox;
-int16_t version = 11;
-enum type {
+int16_t version = 13;
+enum types {
 	vf,
 	veg
-};
+} type;
 char* file_name = " ";
 
 void set_data(unsigned char magic[], uint16_t version, FILE* target) {
