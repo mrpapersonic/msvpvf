@@ -23,7 +23,9 @@ jobs:
         install: >-
           make
           mingw-w64-${{matrix.env}}-clang
+
     - uses: actions/checkout@v2
+
     - name: make
       run: |
         export CC=clang
@@ -31,25 +33,33 @@ jobs:
         make gui
         strip msvpvf.exe
         strip gui.exe
+
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
         name: msvpvf-win-${{matrix.env}}-${{ github.sha }}
         path: |
+          LICENSE
           gui.exe
           msvpvf.exe
+
   build-mac:
     runs-on: macOS-latest
     steps:
+    - name: Install "dependencies"
+      run: brew install zip
+
     - uses: actions/checkout@v2
+
     - name: make
       run: | 
         make
         strip msvpvf
-        gzip -k msvpvf
+        zip msvpvf.zip msvpvf LICENSE
+
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
         name: msvpvf-osx-${{ github.sha }}
         path: |
-          msvpvf.gz
+          msvpvf.zip
