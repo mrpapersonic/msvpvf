@@ -193,7 +193,7 @@ void AddControls(HWND hWnd) {
 	memset(&A,0,sizeof(A));
 	int i = 0;
 	for (i = 0; i <= 11; i++) {
-		strncpy((TCHAR*)A, (TCHAR*)versions[i], ARRAYSIZE(A);
+		strncpy((TCHAR*)A, (TCHAR*)versions[i], ARRAYSIZE(A));
 		SendMessage(hWndComboBox, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)A);
 	}
 	SendMessage(hWndComboBox, CB_SETCURSEL, (WPARAM)3, (LPARAM)0);
