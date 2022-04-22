@@ -2,7 +2,7 @@
 C/C++ port of [msvpvf](https://archive.org/details/msvpvf-1.3-movie-studio-vegas-pro-version-faker-msvpvf-updated-to-1.31-focus-on-vegas)
 
 ## What is this??
-msvpvf is a tool used to "downgrade" VEGAS Pro project files, written entirely in C. It has no runtime libraries, making it incredibly lightweight. On macOS, the CLI compiles to 50 KB, and on Windows the GUI app is only 19 KB.
+msvpvf is a tool used to "downgrade" VEGAS Pro project files, written entirely in C. It has no runtime libraries, making it incredibly lightweight. Binaries for OS X and Windows are less than a megabyte in size.
 
 Currently, the GUI doesn't look that great. Making pretty apps with `windows.h` is not the easiest job in the world; if someone is willing enough to make it look prettier, be my guest.
 
