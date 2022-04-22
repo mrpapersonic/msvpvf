@@ -103,7 +103,9 @@ char* open_file(HWND hWnd) {
 	ofn.lpstrFilter = "Project files\0*.veg;*.vf\0All files\0*.*\0";
 	ofn.nFilterIndex = 1;
 
-	GetOpenFileName(&ofn);
+	if (GetOpenFileNameA(&ofn) == 0) {
+		return " ";
+	}
 
 	display_file(filename);
 
@@ -130,7 +132,9 @@ void save_file(HWND hWnd, char* input_file) {
 	ofn.lpstrFilter = "Movie Studio project files\0*.vf\0VEGAS Pro project files\0*.veg\0All files\0*.*\0";
 	ofn.nFilterIndex = (int)type+1;
 
-	GetSaveFileName(&ofn);
+	if (GetSaveFileNameA(&ofn) == 0) {
+		return;
+	}
 
 	copy_file(input_file, output_file);
 	FILE* output = fopen(output_file, "r+b");
