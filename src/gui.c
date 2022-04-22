@@ -27,10 +27,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <commdlg.h>
+#define _WIN32_WINNT 0x0400
+#define ARRAYSIZE(a) \
+	sizeof(a)/sizeof(a[0])
 #define OPEN_FILE_BUTTON 0
 #define COMBOBOX         1
 #define LISTBOX          2
 #define SAVE_FILE_BUTTON 3
+#ifdef _MSC_VER
+#define strdup(p) _strdup(p)
+#endif
 
 HWND hWndListBox, hWndComboBox;
 int16_t version = 13;
@@ -91,11 +97,11 @@ void display_file(char* path) {
 }
 
 char* open_file(HWND hWnd) {
-	OPENFILENAME ofn;
+	OPENFILENAMEA ofn;
 	char filename[256];
 
-	ZeroMemory(&ofn, sizeof(OPENFILENAME));
-	ofn.lStructSize = sizeof(OPENFILENAME);
+	ZeroMemory(&ofn, OPENFILENAME_SIZE_VERSION_400);
+	ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;
 	ofn.hwndOwner = hWnd;
 	ofn.lpstrFile = filename;
 	ofn.lpstrFile[0] = '\0';
@@ -109,22 +115,22 @@ char* open_file(HWND hWnd) {
 
 	display_file(filename);
 
-	return _strdup(filename);
+	return strdup(filename);
 }
 
 void save_file(HWND hWnd, char* input_file) {
 	if (strcmp(input_file, " ") == 0) {
-		MessageBoxW(hWnd, 
-					L"Please open a file first!", 
-					L"Invalid input file!", 
+		MessageBoxA(hWnd, 
+					"Please open a file first!", 
+					"Invalid input file!", 
 					MB_ICONEXCLAMATION); 
 		return;
 	}
-	OPENFILENAME ofn;
+	OPENFILENAMEA ofn;
 	char output_file[256];
 
-	ZeroMemory(&ofn, sizeof(OPENFILENAME));
-	ofn.lStructSize = sizeof(OPENFILENAME);
+	ZeroMemory(&ofn, OPENFILENAME_SIZE_VERSION_400);
+	ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;
 	ofn.hwndOwner = hWnd;
 	ofn.lpstrFile = output_file;
 	ofn.lpstrFile[0] = '\0';
@@ -139,7 +145,7 @@ void save_file(HWND hWnd, char* input_file) {
 	copy_file(input_file, output_file);
 	FILE* output = fopen(output_file, "r+b");
 	if (output == NULL) {
-		MessageBoxW(hWnd, L"Failed to save project file!", L"Saving project failed!", MB_ICONEXCLAMATION); 
+		MessageBoxA(hWnd, "Failed to save project file!", "Saving project failed!", MB_ICONEXCLAMATION); 
 		return;
 	}
 
@@ -163,7 +169,7 @@ void save_file(HWND hWnd, char* input_file) {
 
 void AddControls(HWND hWnd) {
 	/* Versions */
-	hWndComboBox = CreateWindowW(L"ComboBox", NULL,
+	hWndComboBox = CreateWindowA("ComboBox", NULL,
 								 CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | WS_VSCROLL,
 								 (int)((225 - 50)/2), 30, 50, 200, 
 								 hWnd, (HMENU)COMBOBOX, NULL, NULL); /**
@@ -187,24 +193,24 @@ void AddControls(HWND hWnd) {
 	memset(&A,0,sizeof(A));
 	int i = 0;
 	for (i = 0; i <= 11; i++) {
-		wcscpy_s((WCHAR*)A, sizeof(A)/sizeof(TCHAR), (WCHAR*)versions[i]);
+		strncpy((TCHAR*)A, (TCHAR*)versions[i], ARRAYSIZE(A);
 		SendMessage(hWndComboBox, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)A);
 	}
 	SendMessage(hWndComboBox, CB_SETCURSEL, (WPARAM)3, (LPARAM)0);
 	/* Open File */
-	HWND open_button = CreateWindowW(L"Button", L"Open", WS_VISIBLE | WS_CHILD, (int)((225 - 50)/2), 5, 50, 20, hWnd, (HMENU)OPEN_FILE_BUTTON, NULL, NULL);
+	HWND open_button = CreateWindowA("Button", "Open", WS_VISIBLE | WS_CHILD, (int)((225 - 50)/2), 5, 50, 20, hWnd, (HMENU)OPEN_FILE_BUTTON, NULL, NULL);
 	/* Type */
 	TCHAR listbox_items[][13] = {TEXT("VEGAS Pro"), TEXT("Movie Studio")};
-	hWndListBox = CreateWindowW(L"Listbox", NULL, WS_VISIBLE | WS_CHILD | LBS_STANDARD | LBS_NOTIFY, (int)((225 - 100)/2), 55, 100, 40, hWnd, (HMENU)LISTBOX, NULL, NULL);
+	hWndListBox = CreateWindowA("Listbox", NULL, WS_VISIBLE | WS_CHILD | LBS_STANDARD | LBS_NOTIFY, (int)((225 - 100)/2), 55, 100, 40, hWnd, (HMENU)LISTBOX, NULL, NULL);
 	for (i = 0; i < ARRAYSIZE(listbox_items); i++) {
 		int pos = (int)SendMessage(hWndListBox, LB_ADDSTRING, i, (LPARAM) listbox_items[i]);
 		SendMessage(hWndListBox, LB_SETITEMDATA, pos, (LPARAM) i);
 	}
 	SendMessage(hWndListBox, LB_SETCURSEL, (WPARAM)0, (LPARAM)0);
 	/* Save File */
-	HWND save_button = CreateWindowW(L"Button", L"Save", WS_VISIBLE | WS_CHILD, (int)((225 - 50)/2), 90, 50, 20, hWnd, (HMENU)SAVE_FILE_BUTTON, NULL, NULL);
+	HWND save_button = CreateWindowA("Button", "Save", WS_VISIBLE | WS_CHILD, (int)((225 - 50)/2), 90, 50, 20, hWnd, (HMENU)SAVE_FILE_BUTTON, NULL, NULL);
 	if (open_button == NULL || save_button == NULL || hWndListBox == NULL || hWndComboBox == NULL)
-		MessageBoxW(hWnd, L"how did you even trigger this", L"GUI could not be initialized!", MB_ICONEXCLAMATION); 
+		MessageBoxA(hWnd, "how did you even trigger this", "GUI could not be initialized!", MB_ICONEXCLAMATION); 
 }
 
 bool CALLBACK SetFont(HWND child, LPARAM font) {
@@ -243,23 +249,23 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 			PostQuitMessage(0);
 			break;
 		default:
-			return DefWindowProcW(hWnd, msg, wParam, lParam);
+			return DefWindowProcA(hWnd, msg, wParam, lParam);
 	}
 	return false;
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR args, int ncmdshow) {
-	WNDCLASSW wc = {0};
+	WNDCLASSA wc = {0};
 
 	wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hInstance = hInstance;
-	wc.lpszClassName = L"msvpvf";
+	wc.lpszClassName = "msvpvf";
 	wc.lpfnWndProc = WindowProcedure;
 
-	if (!RegisterClassW(&wc)) return -1;
+	if (!RegisterClassA(&wc)) return -1;
 
-	CreateWindowW(L"msvpvf", L"Movie Studio / Vegas Pro version spoofer", WS_OVERLAPPED | WS_VISIBLE | WS_MINIMIZEBOX | WS_SYSMENU, 100, 100, 225, 200, NULL, NULL, hInstance, NULL);
+	CreateWindowA("msvpvf", "Movie Studio / Vegas Pro version spoofer", WS_OVERLAPPED | WS_VISIBLE | WS_MINIMIZEBOX | WS_SYSMENU, 100, 100, 225, 200, NULL, NULL, hInstance, NULL);
 
 	MSG msg = {0};
 
@@ -267,4 +273,5 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR args, int
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+	return 0;
 }
