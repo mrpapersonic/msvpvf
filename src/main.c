@@ -5,6 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <libgen.h>
 #ifdef _MSC_VER
 #define strdup(p) _strdup(p)
 #endif
@@ -148,13 +149,13 @@ int main(int argc, char *argv[]) {
 	}
 	fflush(stdout);
 	if (strcmp(args.output, " ") == 0) { /* string manipulation hell */
-		char temp[256] = {'V'};
+		char temp[256] = (char*)malloc(sizeof(char)*256);
 		char str_version[16] = {};
-		sprintf(str_version, "%d", args.version);
+		sprintf(str_version, "V%d", args.version);
 		strncat(temp, str_version, 2);
 		strncat(temp, "_", 1);
-		strncat(temp, args.input, 248);
-		strcpy(temp, strremove(temp, strrchr(args.input, ('.')))); /* remove file extension */
+		strncat(temp, basename(args.input), 248);
+		strcpy(temp, strremove(temp, strrchr(basename(args.input), ('.')))); /* remove file extension */
 		strncat(temp, ".", 1);
 		strncat(temp, args.type, 3);
 		strncpy(args.output, temp, 255);
