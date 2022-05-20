@@ -149,8 +149,9 @@ int main(int argc, char *argv[]) {
 	}
 	fflush(stdout);
 	if (strcmp(args.output, " ") == 0) { /* string manipulation hell */
-		char temp[256] = (char*)malloc(sizeof(char)*256);
-		char str_version[16] = {};
+		char temp* = (char*)malloc(sizeof(char)*256);
+		temp[0] = '\0';
+		char str_version[16];
 		sprintf(str_version, "V%d", args.version);
 		strncat(temp, str_version, 2);
 		strncat(temp, "_", 1);
