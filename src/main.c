@@ -149,7 +149,7 @@ int main(int argc, char *argv[]) {
 	}
 	fflush(stdout);
 	if (strcmp(args.output, " ") == 0) { /* string manipulation hell */
-		char temp* = (char*)malloc(sizeof(char)*256);
+		char temp* = (char*)calloc(256, sizeof(char));
 		temp[0] = '\0';
 		char str_version[16];
 		sprintf(str_version, "V%d", args.version);
@@ -160,6 +160,7 @@ int main(int argc, char *argv[]) {
 		strncat(temp, ".", 1);
 		strncat(temp, args.type, 3);
 		strncpy(args.output, temp, 255);
+		free(temp);
 	}
 	if (strcmp(args.type, "veg") == 0) {
 		const unsigned char T[] = {0xEF, 0x29, 0xC4, 0x46, 0x4A, 0x90, 0xD2, 0x11, 0x87, 0x22, 0x00, 0xC0, 0x4F, 0x8E, 0xDB, 0x8A};
