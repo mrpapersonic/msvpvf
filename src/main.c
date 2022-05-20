@@ -149,7 +149,7 @@ int main(int argc, char *argv[]) {
 	}
 	fflush(stdout);
 	if (strcmp(args.output, " ") == 0) { /* string manipulation hell */
-		char temp* = (char*)calloc(256, sizeof(char));
+		char* temp = (char*)calloc(256, sizeof(char));
 		temp[0] = '\0';
 		char str_version[16];
 		sprintf(str_version, "V%d", args.version);
