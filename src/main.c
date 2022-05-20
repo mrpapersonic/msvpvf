@@ -40,11 +40,13 @@ void set_data(unsigned char magic[], uint16_t version, FILE* target) {
 }
 
 int copy_file(char* source_file, char* target_file) {
+	char ch;
 	FILE *source, *target;
 
 	source = fopen(source_file, "rb");
 
-	if (source == NULL) return 1;
+	if (source == NULL)
+		return 1;
 
 	target = fopen(target_file, "wb");
 
@@ -53,13 +55,8 @@ int copy_file(char* source_file, char* target_file) {
 		return 1;
 	}
 
-	size_t n, m;
-	unsigned char buff[8192];
-	do {
-		n = fread(buff, 1, sizeof(buff), source);
-		if (n) m = fwrite(buff, 1, n, target);
-		else m = 0;
-	} while ((n > 0) && (n == m));
+	while( ( ch = fgetc(source) ) != EOF )
+		fputc(ch, target);
 
 	fclose(target);
 	fclose(source);
