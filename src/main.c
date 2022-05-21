@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <libgen.h>
+#include "../include/common.h"
 #ifdef _MSC_VER
 #define strdup(p) _strdup(p)
 #endif
@@ -29,40 +30,6 @@ char* strremove(char* str, const char* sub) {
     return str;
 }
 
-void set_data(unsigned char magic[], uint16_t version, FILE* target) {
-	int i;
-	fseek(target, 0x46, SEEK_SET);
-	fputc(version, target);
-	for (i=0; i<=sizeof(*magic); ++i) {
-		fseek(target, 0x18+i, SEEK_SET);
-		fputc(magic[i], target);
-	}
-}
-
-int copy_file(char* source_file, char* target_file) {
-	char ch;
-	FILE *source, *target;
-
-	source = fopen(source_file, "rb");
-
-	if (source == NULL)
-		return 1;
-
-	target = fopen(target_file, "wb");
-
-	if (target == NULL) {
-		fclose(source);
-		return 1;
-	}
-
-	while( ( ch = fgetc(source) ) != EOF )
-		fputc(ch, target);
-
-	fclose(target);
-	fclose(source);
-	return 0;
-}
-
 int main(int argc, char *argv[]) {
 	int c, option_index = 0;
 	unsigned char magic[16];
@@ -71,7 +38,7 @@ int main(int argc, char *argv[]) {
 		char input[256];
 		char output[256];
 		int version;
-		char type[256];
+		char type[4];
 	} args;
 	strcpy(args.input, " ");
 	strcpy(args.output, " ");
@@ -84,13 +51,13 @@ int main(int argc, char *argv[]) {
 				strncpy(args.input, optarg, sizeof(args.input)-1);  /* subtract 1 to make sure it's "null-safe" */
 				break;
 			case 'o':
-				strncpy(args.output, optarg, sizeof(args.input)-1);
+				strncpy(args.output, optarg, sizeof(args.output)-1);
 				break;
 			case 'v':
 				args.version = abs(atoi(strdup(optarg)));  /* abs() for possible negative inputs */
 				break;
 			case 't':
-				strncpy(args.type, optarg, sizeof(args.input)-1);
+				strncpy(args.type, optarg, sizeof(args.type)-1);
 				break;
 			case 'h':
 			default:
@@ -148,14 +115,14 @@ int main(int argc, char *argv[]) {
 	if (strcmp(args.output, " ") == 0) { /* string manipulation hell */
 		char* temp = (char*)calloc(256, sizeof(char));
 		temp[0] = '\0';
-		char str_version[16];
+		char str_version[4];
 		sprintf(str_version, "V%d", args.version);
-		strncat(temp, str_version, 2);
-		strncat(temp, "_", 1);
+		strncat(temp, str_version, 4);
+		strncat(temp, "_", 2);
 		strncat(temp, basename(args.input), 248);
 		strcpy(temp, strremove(temp, strrchr(basename(args.input), ('.')))); /* remove file extension */
-		strncat(temp, ".", 1);
-		strncat(temp, args.type, 3);
+		strncat(temp, ".", 2);
+		strncat(temp, args.type, 4);
 		strncpy(args.output, temp, 255);
 		free(temp);
 	}

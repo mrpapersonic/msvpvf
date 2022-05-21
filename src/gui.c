@@ -27,6 +27,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <commdlg.h>
+#include "../include/common.h"
 #define _WIN32_WINNT 0x0400
 #define ARRAYSIZE(a) \
 	sizeof(a)/sizeof(a[0])
@@ -46,40 +47,6 @@ enum types {
 } type;
 char* file_name = " ";
 
-void set_data(unsigned char magic[], uint16_t version, FILE* target) {
-	int i;
-	fseek(target, 0x46, SEEK_SET);
-	fputc(version, target);
-	for (i=0; i<=sizeof(*magic); ++i) {
-		fseek(target, 0x18+i, SEEK_SET);
-		fputc(magic[i], target);
-	}
-}
-
-int copy_file(char* source_file, char* target_file) {
-	/* Copy a file */
-	FILE *source, *target;
-
-	source = fopen(source_file, "rb");
-	if (source == NULL) return 1;
-	target = fopen(target_file, "wb");
-	if (target == NULL) {
-		fclose(source);
-		return 1;
-	}
-
-	size_t n, m;
-	unsigned char buff[8192];
-	do {
-		n = fread(buff, 1, sizeof(buff), source);
-		if (n) m = fwrite(buff, 1, n, target);
-		else m = 0;
-	} while ((n > 0) && (n == m));
-
-	fclose(target);
-	fclose(source);
-	return 0;
-}
 
 void display_file(char* path) {
 	/* Read the file to memory */
@@ -177,24 +144,14 @@ void AddControls(HWND hWnd) {
 																	  * these arguments are for, so chances
 																	  * are that you don't either. 
 																	 **/
-	TCHAR versions[][10] = {TEXT("8"), TEXT("9"), TEXT("10"), 
+	TCHAR versions[][10] = {TEXT("8"),  TEXT("9"),  TEXT("10"), 
 							TEXT("11"), TEXT("12"), TEXT("13"), 
 							TEXT("14"), TEXT("15"), TEXT("16"), 
 							TEXT("17"), TEXT("18"), TEXT("19")};
 
-	TCHAR A[16];
-
-	/**
-	 * Here we can't just use a for loop 
-	 * and cast all of those to `TEXT()`.
-	 * Why? I don't know. My brain is too
-	 * small to figure it out.
-	**/
-	memset(&A,0,sizeof(A));
 	int i = 0;
-	for (i = 0; i <= 11; i++) {
-		strncpy((TCHAR*)A, (TCHAR*)versions[i], ARRAYSIZE(A));
-		SendMessage(hWndComboBox, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)A);
+	for (i = 0; i < ARRAYSIZE(versions); i++) {
+		SendMessage(hWndComboBox, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)versions[i]);
 	}
 	SendMessage(hWndComboBox, CB_SETCURSEL, (WPARAM)3, (LPARAM)0);
 	/* Open File */
