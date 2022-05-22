@@ -86,10 +86,10 @@ char* open_file(HWND hWnd) {
 
 void save_file(HWND hWnd, char* input_file) {
 	if (strcmp(input_file, " ") == 0) {
-		MessageBox(hWnd, 
-					"Please open a file first!", 
-					"Invalid input file!", 
-					MB_ICONEXCLAMATION); 
+		MessageBox(hWnd,
+					TEXT("Please open a file first!"),
+					TEXT("Invalid input file!"),
+					MB_ICONEXCLAMATION);
 		return;
 	}
 	OPENFILENAME ofn;
@@ -108,10 +108,12 @@ void save_file(HWND hWnd, char* input_file) {
 		return;
 	}
 
-	copy_file(input_file, output_file);
+	if (CopyFile((TCHAR*)input_file, (TCHAR*)output_file, 0) == 0) {
+		MessageBox(hWnd, TEXT("Failed to copy original project file! Does the destination file already exist?"), TEXT("Saving project failed!"), MB_ICONEXCLAMATION);
+	}
 	FILE* output = fopen(output_file, "r+b");
 	if (output == NULL) {
-		MessageBox(hWnd, "Failed to save project file!", "Saving project failed!", MB_ICONEXCLAMATION); 
+		MessageBox(hWnd, TEXT("Failed to save project file!"), TEXT("Saving project failed!"), MB_ICONEXCLAMATION); 
 		return;
 	}
 
@@ -166,7 +168,7 @@ void AddControls(HWND hWnd) {
 	/* Save File */
 	HWND save_button = CreateWindowA("Button", "Save", WS_VISIBLE | WS_CHILD, (int)((225 - 50)/2), 90, 50, 20, hWnd, (HMENU)SAVE_FILE_BUTTON, NULL, NULL);
 	if (open_button == NULL || save_button == NULL || hWndListBox == NULL || hWndComboBox == NULL)
-		MessageBoxA(hWnd, "how did you even trigger this", "GUI could not be initialized!", MB_ICONEXCLAMATION); 
+		MessageBox(hWnd, TEXT("how did you even trigger this"), TEXT("GUI could not be initialized!"), MB_ICONEXCLAMATION); 
 }
 
 bool CALLBACK SetFont(HWND child, LPARAM font) {
@@ -221,7 +223,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR args, int
 
 	if (!RegisterClass(&wc)) return -1;
 
-	CreateWindow("msvpvf", "Movie Studio / Vegas Pro version spoofer", WS_OVERLAPPED | WS_VISIBLE | WS_MINIMIZEBOX | WS_SYSMENU, 100, 100, 225, 200, NULL, NULL, hInstance, NULL);
+	CreateWindow(TEXT("msvpvf"), TEXT("Movie Studio / Vegas Pro version spoofer"), WS_OVERLAPPED | WS_VISIBLE | WS_MINIMIZEBOX | WS_SYSMENU, 100, 100, 225, 200, NULL, NULL, hInstance, NULL);
 
 	MSG msg = {0};
 
