@@ -5,16 +5,40 @@ on:
   pull_request:
 
 jobs:
-  build-win:
+  build-win32:
+    runs-on: windows-latest
+    steps:
+    - name: Setup MinGW
+      run: |
+        curl -o mingw-get.tar.xz https://osdn.net/projects/mingw/downloads/68260/mingw-get-0.6.3-mingw32-pre-20170905-1-bin.tar.xz
+        mkdir C:\MinGW
+        tar xvf mingw-get.tar.xz -C C:\MinGW
+        C:\MinGW\bin\mingw-get.exe install mingw32-base-bin
+      shell: bash
+
+    - name: make
+      run: |
+        set PATH=%PATH%;C:\MinGW\bin
+        make
+        make gui
+        strip msvpvf.exe
+        strip gui.exe
+      shell: C:\MinGW\msys\1.0\msys.bat {0}
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: msvpvf-win-${{matrix.env}}-${{ github.sha }}
+        path: |
+          LICENSE
+          gui.exe
+          msvpvf.exe
+
+  build-win64:
     runs-on: windows-latest
     defaults:
       run:
         shell: msys2 {0}
-    strategy:
-      matrix:
-        include:
-          - { sys: mingw64, env: x86_64 }
-          - { sys: mingw32, env: i686 }
     steps:
     - name: Setup MSYS2
       uses: msys2/setup-msys2@v2
@@ -22,7 +46,7 @@ jobs:
         msystem: ${{matrix.sys}}
         install: >-
           make
-          mingw-w64-${{matrix.env}}-clang
+          mingw-w64-x86_64-clang
 
     - uses: actions/checkout@v2
 
