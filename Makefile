@@ -9,7 +9,7 @@ msvpvf: src/main.o src/common.o
 
 # GUI is windows-only, please use cross-compiler!
 gui: src/gui.o src/common.o
-	$(CC) -o $@ $^ $(CC_FLAGS) $(LD_FLAGS) -mwindows
+	$(CC) -o $@ $^ $(CC_FLAGS) $(LD_FLAGS) -mwindows -fstack-protector
 
 clean:
 	rm -f src/*.o *.exe msvpvf gui
