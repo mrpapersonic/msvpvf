@@ -21,6 +21,7 @@ jobs:
     - name: make
       run: |
         set PATH=%PATH%;C:\MinGW\bin
+        set CC=gcc
         make
         make gui
         strip msvpvf.exe
