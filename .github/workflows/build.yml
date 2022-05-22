@@ -16,6 +16,8 @@ jobs:
         /c/MinGW/bin/mingw-get.exe install mingw32-base-bin
       shell: pwsh
 
+    - uses: actions/checkout@v2
+
     - name: make
       run: |
         set PATH=%PATH%;C:\MinGW\bin
