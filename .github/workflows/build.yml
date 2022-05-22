@@ -10,7 +10,7 @@ jobs:
     steps:
     - name: Setup MinGW
       run: |
-        curl -L -o mingw-get.tar.xz https://osdn.net/projects/mingw/downloads/68260/mingw-get-0.6.3-mingw32-pre-20170905-1-bin.tar.xz
+        curl -L -o mingw-get.tar.xz https://sourceforge.net/projects/mingw/files/Installer/mingw-get/mingw-get-0.6.2-beta-20131004-1/mingw-get-0.6.2-mingw32-beta-20131004-1-bin.zip/download # https://osdn.net/projects/mingw/downloads/68260/mingw-get-0.6.3-mingw32-pre-20170905-1-bin.tar.xz
         mkdir /c/MinGW
         tar xvf mingw-get.tar.xz -C /c/MinGW
         /c/MinGW/bin/mingw-get.exe install mingw32-base-bin
