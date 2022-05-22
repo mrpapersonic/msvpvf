@@ -10,7 +10,7 @@ jobs:
     steps:
     - name: Setup MinGW
       run: |
-        curl -o mingw-get.tar.xz https://osdn.net/projects/mingw/downloads/68260/mingw-get-0.6.3-mingw32-pre-20170905-1-bin.tar.xz
+        wget -O mingw-get.tar.xz https://osdn.net/projects/mingw/downloads/68260/mingw-get-0.6.3-mingw32-pre-20170905-1-bin.tar.xz
         mkdir C:\MinGW
         tar xvf mingw-get.tar.xz -C C:\MinGW
         C:\MinGW\bin\mingw-get.exe install mingw32-base-bin
@@ -23,7 +23,7 @@ jobs:
         make gui
         strip msvpvf.exe
         strip gui.exe
-      shell: C:\MinGW\msys\1.0\msys.bat {0}
+      shell: cmd
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
