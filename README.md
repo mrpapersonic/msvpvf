@@ -1,6 +1,8 @@
 # msvpvf
 C/C++ port of [msvpvf](https://archive.org/details/msvpvf-1.3-movie-studio-vegas-pro-version-faker-msvpvf-updated-to-1.31-focus-on-vegas)
 
+![msvpvf CI](https://github.com/mrpapersonic/msvpvf/actions/workflows/build.yml/badge.svg)
+
 ## What is this??
 msvpvf is a tool used to "downgrade" VEGAS Pro project files, written entirely in C. It has no runtime libraries, making it incredibly lightweight. Binaries for OS X and Windows are less than a megabyte in size.
 
