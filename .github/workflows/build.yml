@@ -11,10 +11,10 @@ jobs:
     - name: Setup MinGW
       run: |
         wget -O mingw-get.tar.xz https://osdn.net/projects/mingw/downloads/68260/mingw-get-0.6.3-mingw32-pre-20170905-1-bin.tar.xz
-        mkdir C:\MinGW
-        tar xvf mingw-get.tar.xz -C C:\MinGW
-        C:\MinGW\bin\mingw-get.exe install mingw32-base-bin
-      shell: bash
+        mkdir /c/MinGW
+        tar xvf mingw-get.tar.xz -C /c/MinGW
+        /c/MinGW/bin/mingw-get.exe install mingw32-base-bin
+      shell: msys2 {0}
 
     - name: make
       run: |
