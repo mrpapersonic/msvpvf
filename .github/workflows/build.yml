@@ -20,10 +20,10 @@ jobs:
 
     - name: make
       run: |
-        set PATH=%PATH%;C:\MinGW\bin
-        set CC=gcc
-        make
-        make gui
+        set PATH=C:\MinGW\bin;%PATH%
+        set CC=mingw32-gcc
+        mingw32-make
+        mingw32-make gui
         strip msvpvf.exe
         strip gui.exe
       shell: cmd
