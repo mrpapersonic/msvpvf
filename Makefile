@@ -1,5 +1,11 @@
 CC_FLAGS=-Wall -O2 -fstack-protector -fdata-sections -ffunction-sections
-LD_FLAGS=-Wl,--gc-sections
+LD_FLAGS=
+
+ifeq ($(UNAME_S),Darwin)  # macOS is the odd one...
+	LD_FLAGS+=-Wl,-dead_strip
+else
+	LD_FLAGS+=-Wl,--gc-sections
+endif
 
 src/%.o : src/%.c
 	$(CC) -c $(CC_FLAGS) $< -o $@
