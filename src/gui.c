@@ -47,7 +47,6 @@ enum types {
 } type;
 char* file_name = " ";
 
-
 void display_file(char* path) {
 	/* Read the file to memory */
 	FILE* file;
@@ -64,7 +63,7 @@ void display_file(char* path) {
 }
 
 char* open_file(HWND hWnd) {
-	OPENFILENAMEA ofn;
+	OPENFILENAME ofn;
 	char filename[256];
 
 	ZeroMemory(&ofn, OPENFILENAME_SIZE_VERSION_400);
@@ -76,7 +75,7 @@ char* open_file(HWND hWnd) {
 	ofn.lpstrFilter = "Project files\0*.veg;*.vf\0All files\0*.*\0";
 	ofn.nFilterIndex = 1;
 
-	if (GetOpenFileNameA(&ofn) == 0) {
+	if (GetOpenFileName(&ofn) == 0) {
 		return " ";
 	}
 
@@ -87,13 +86,13 @@ char* open_file(HWND hWnd) {
 
 void save_file(HWND hWnd, char* input_file) {
 	if (strcmp(input_file, " ") == 0) {
-		MessageBoxA(hWnd, 
+		MessageBox(hWnd, 
 					"Please open a file first!", 
 					"Invalid input file!", 
 					MB_ICONEXCLAMATION); 
 		return;
 	}
-	OPENFILENAMEA ofn;
+	OPENFILENAME ofn;
 	char output_file[256];
 
 	ZeroMemory(&ofn, OPENFILENAME_SIZE_VERSION_400);
@@ -105,14 +104,14 @@ void save_file(HWND hWnd, char* input_file) {
 	ofn.lpstrFilter = "Movie Studio project files\0*.vf\0VEGAS Pro project files\0*.veg\0All files\0*.*\0";
 	ofn.nFilterIndex = (int)type+1;
 
-	if (GetSaveFileNameA(&ofn) == 0) {
+	if (GetSaveFileName(&ofn) == 0) {
 		return;
 	}
 
 	copy_file(input_file, output_file);
 	FILE* output = fopen(output_file, "r+b");
 	if (output == NULL) {
-		MessageBoxA(hWnd, "Failed to save project file!", "Saving project failed!", MB_ICONEXCLAMATION); 
+		MessageBox(hWnd, "Failed to save project file!", "Saving project failed!", MB_ICONEXCLAMATION); 
 		return;
 	}
 
@@ -136,7 +135,7 @@ void save_file(HWND hWnd, char* input_file) {
 
 void AddControls(HWND hWnd) {
 	/* Versions */
-	hWndComboBox = CreateWindowA("ComboBox", NULL,
+	hWndComboBox = CreateWindow("ComboBox", NULL,
 								 CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | WS_VSCROLL,
 								 (int)((225 - 50)/2), 30, 50, 200, 
 								 hWnd, (HMENU)COMBOBOX, NULL, NULL); /**
@@ -155,10 +154,10 @@ void AddControls(HWND hWnd) {
 	}
 	SendMessage(hWndComboBox, CB_SETCURSEL, (WPARAM)3, (LPARAM)0);
 	/* Open File */
-	HWND open_button = CreateWindowA("Button", "Open", WS_VISIBLE | WS_CHILD, (int)((225 - 50)/2), 5, 50, 20, hWnd, (HMENU)OPEN_FILE_BUTTON, NULL, NULL);
+	HWND open_button = CreateWindow("Button", "Open", WS_VISIBLE | WS_CHILD, (int)((225 - 50)/2), 5, 50, 20, hWnd, (HMENU)OPEN_FILE_BUTTON, NULL, NULL);
 	/* Type */
 	TCHAR listbox_items[][13] = {TEXT("VEGAS Pro"), TEXT("Movie Studio")};
-	hWndListBox = CreateWindowA("Listbox", NULL, WS_VISIBLE | WS_CHILD | LBS_STANDARD | LBS_NOTIFY, (int)((225 - 100)/2), 55, 100, 40, hWnd, (HMENU)LISTBOX, NULL, NULL);
+	hWndListBox = CreateWindow("Listbox", NULL, WS_VISIBLE | WS_CHILD | LBS_STANDARD | LBS_NOTIFY, (int)((225 - 100)/2), 55, 100, 40, hWnd, (HMENU)LISTBOX, NULL, NULL);
 	for (i = 0; i < ARRAYSIZE(listbox_items); i++) {
 		int pos = (int)SendMessage(hWndListBox, LB_ADDSTRING, i, (LPARAM) listbox_items[i]);
 		SendMessage(hWndListBox, LB_SETITEMDATA, pos, (LPARAM) i);
@@ -206,13 +205,13 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 			PostQuitMessage(0);
 			break;
 		default:
-			return DefWindowProcA(hWnd, msg, wParam, lParam);
+			return DefWindowProc(hWnd, msg, wParam, lParam);
 	}
 	return false;
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR args, int ncmdshow) {
-	WNDCLASSA wc = {0};
+	WNDCLASS wc = {0};
 
 	wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
@@ -220,9 +219,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR args, int
 	wc.lpszClassName = "msvpvf";
 	wc.lpfnWndProc = WindowProcedure;
 
-	if (!RegisterClassA(&wc)) return -1;
+	if (!RegisterClass(&wc)) return -1;
 
-	CreateWindowA("msvpvf", "Movie Studio / Vegas Pro version spoofer", WS_OVERLAPPED | WS_VISIBLE | WS_MINIMIZEBOX | WS_SYSMENU, 100, 100, 225, 200, NULL, NULL, hInstance, NULL);
+	CreateWindow("msvpvf", "Movie Studio / Vegas Pro version spoofer", WS_OVERLAPPED | WS_VISIBLE | WS_MINIMIZEBOX | WS_SYSMENU, 100, 100, 225, 200, NULL, NULL, hInstance, NULL);
 
 	MSG msg = {0};
 
