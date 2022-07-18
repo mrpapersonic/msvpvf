@@ -49,6 +49,7 @@ char* file_name = " ";
 
 void display_file(char* path) {
 	/* Read the file to memory */
+        /* eventually this will contain code to show the version and type */
 	FILE* file;
 	file = fopen(path, "rb");
 	fseek(file, 0, SEEK_END);
@@ -110,6 +111,7 @@ void save_file(HWND hWnd, char* input_file) {
 
 	if (CopyFile((TCHAR*)input_file, (TCHAR*)output_file, 0) == 0) {
 		MessageBox(hWnd, TEXT("Failed to copy original project file! Does the destination file already exist?"), TEXT("Saving project failed!"), MB_ICONEXCLAMATION);
+                return;
 	}
 	FILE* output = fopen(output_file, "r+b");
 	if (output == NULL) {
@@ -188,9 +190,7 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 			switch(wParam) {
 				case OPEN_FILE_BUTTON:
 					file_name = open_file(hWnd);
-					break;
 				case COMBOBOX:
-					break; /* NOTE: remove these 4 lines if we don't end up doing anything with them */
 				case LISTBOX:
 					break;
 				case SAVE_FILE_BUTTON:
