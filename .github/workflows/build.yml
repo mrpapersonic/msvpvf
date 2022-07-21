@@ -73,7 +73,7 @@ jobs:
           msvpvf.exe
 
   build-mac:
-    name: macOS (amd64)
+    name: macOS (64-bit)
     runs-on: macOS-latest
     steps:
     - name: Install "dependencies"
