@@ -83,7 +83,7 @@ jobs:
 
     - name: make
       run: | 
-        make CC_FLAGS=-static
+        make
         strip msvpvf
         zip msvpvf.zip msvpvf LICENSE
 
