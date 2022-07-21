@@ -6,6 +6,7 @@ on:
 
 jobs:
   build-win32:
+    name: Windows i686 (32-bit)
     runs-on: windows-latest
     steps:
     - name: Setup MinGW
@@ -22,8 +23,8 @@ jobs:
       run: |
         set PATH=C:\MinGW\bin;%PATH%
         set CC=mingw32-gcc
-        mingw32-make CFLAGS=-static
-        mingw32-make gui CFLAGS=-static
+        mingw32-make CC_FLAGS=-static
+        mingw32-make gui CC_FLAGS=-static
         strip msvpvf.exe
         strip gui.exe
       shell: cmd
@@ -38,6 +39,7 @@ jobs:
           msvpvf.exe
 
   build-win64:
+    name: Windows amd64 (64-bit)
     runs-on: windows-latest
     defaults:
       run:
@@ -56,8 +58,8 @@ jobs:
     - name: make
       run: |
         export CC=clang
-        make CFLAGS=-static
-        make gui CFLAGS=-static
+        make CC_FLAGS=-static
+        make gui CC_FLAGS=-static
         strip msvpvf.exe
         strip gui.exe
 
@@ -71,6 +73,7 @@ jobs:
           msvpvf.exe
 
   build-mac:
+    name: macOS (amd64)
     runs-on: macOS-latest
     steps:
     - name: Install "dependencies"
@@ -80,7 +83,7 @@ jobs:
 
     - name: make
       run: | 
-        make CFLAGS=-static
+        make CC_FLAGS=-static
         strip msvpvf
         zip msvpvf.zip msvpvf LICENSE
 
