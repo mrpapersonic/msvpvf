@@ -17,9 +17,9 @@ jobs:
 
     - name: Setup MinGW
       run: |
-        curl -L -o mingw-get.tar.xz "https://osdn.net/dl/mingw/mingw-get-0.6.3-mingw32-pre-20170905-1-bin.tar.xz"
-        mkdir C:\MinGW
-        tar xvf mingw-get.tar.xz -C C:\MinGW
+        Invoke-WebRequest -OutFile mingw-get.zip "https://osdn.net/dl/mingw/mingw-get-0.6.3-mingw32-pre-20170905-1-bin.zip" -UserAgent "curl/7.55.1"
+        Expand-Archive -Path mingw-get.zip -DestinationPath C:\MinGW
+        Remove-Item -Path mingw-get.zip
         C:\MinGW\bin\mingw-get.exe install mingw32-base-bin
       shell: pwsh
 
