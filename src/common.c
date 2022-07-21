@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-void set_data(unsigned char magic[], uint16_t version, FILE* target) {
+void set_data(unsigned char* magic, uint16_t version, FILE* target) {
 	int i;
 	fseek(target, 0x46, SEEK_SET);
 	fputc(version, target);

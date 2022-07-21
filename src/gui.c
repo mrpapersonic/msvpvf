@@ -31,15 +31,16 @@
 #define _WIN32_WINNT 0x0400
 #define ARRAYSIZE(a) \
 	sizeof(a)/sizeof(a[0])
-#define OPEN_FILE_BUTTON 0
-#define COMBOBOX         1
-#define LISTBOX          2
-#define SAVE_FILE_BUTTON 3
+#define OPEN_FILE_BUTTON	0
+#define COMBOBOX		1
+#define LISTBOX			2
+#define SAVE_FILE_BUTTON	3
+#define VERSION			4
 #ifdef _MSC_VER
 #define strdup(p) _strdup(p)
 #endif
 
-HWND hWndListBox, hWndComboBox;
+HWND hWndListBox, hWndComboBox, hWndVersion;
 int16_t version = 13;
 enum types {
 	vf,
@@ -49,17 +50,25 @@ char* file_name = " ";
 
 void display_file(char* path) {
 	/* Read the file to memory */
-        /* eventually this will contain code to show the version and type */
 	FILE* file;
 	file = fopen(path, "rb");
-	fseek(file, 0, SEEK_END);
-	int _size = ftell(file);
-	rewind(file);
-	char* data = calloc(_size+1, sizeof(char*));
-	fread(data, _size, 1, file);
-	data[_size] = '\0';
-
-	free(data);
+	fseek(file, 0x46, SEEK_SET);
+	int f_version = fgetc(file);
+	fseek(file, 0x18, SEEK_SET);
+	TCHAR p[32];
+	switch (fgetc(file)) {
+		case 0xEF:
+			snprintf(p, 32, "File version: %s %d", "VEGAS Pro", f_version);
+			break;
+		case 0xF6:
+			snprintf(p, 32, "File version: %s %d", "Movie Studio", f_version);
+			break;
+		default:
+			snprintf(p, 32, "File version: %s %d", "Unknown", f_version);
+			break;
+	}
+	printf("%s", p);
+	SendMessage(hWndVersion, WM_SETTEXT, (WPARAM)0, (LPARAM)p);
 	fclose(file);
 }
 
@@ -118,21 +127,15 @@ void save_file(HWND hWnd, char* input_file) {
 		MessageBox(hWnd, TEXT("Failed to save project file!"), TEXT("Saving project failed!"), MB_ICONEXCLAMATION); 
 		return;
 	}
+	unsigned char* magic;
+	static const unsigned char magic_veg[] = {0xEF, 0x29, 0xC4, 0x46, 0x4A, 0x90, 0xD2, 0x11, 0x87, 0x22, 0x00, 0xC0, 0x4F, 0x8E, 0xDB, 0x8A};
+	static const unsigned char magic_vf[] = {0xF6, 0x1B, 0x3C, 0x53, 0x35, 0xD6, 0xF3, 0x43, 0x8A, 0x90, 0x64, 0xB8, 0x87, 0x23, 0x1F, 0x7F};
+	if (type == veg)
+		memcpy(magic, magic_veg, sizeof(magic_veg));
+	else
+		memcpy(magic, magic_vf,  sizeof(magic_vf) );
 
-	switch ((int)type) {
-		case vf: {
-			unsigned char magic[] = {0xEF, 0x29, 0xC4, 0x46, 0x4A, 0x90, 0xD2, 0x11, 
-									 0x87, 0x22, 0x00, 0xC0, 0x4F, 0x8E, 0xDB, 0x8A};
-			set_data(magic, version, output);
-			break;
-		}
-		default: {
-			unsigned char magic[] = {0xF6, 0x1B, 0x3C, 0x53, 0x35, 0xD6, 0xF3, 0x43, 
-									 0x8A, 0x90, 0x64, 0xB8, 0x87, 0x23, 0x1F, 0x7F};
-			set_data(magic, version, output);
-			break;
-		}
-	}
+	set_data(magic, version, output);
 
 	fclose(output);
 }
@@ -168,7 +171,9 @@ void AddControls(HWND hWnd) {
 	}
 	SendMessage(hWndListBox, LB_SETCURSEL, (WPARAM)0, (LPARAM)0);
 	/* Save File */
-	HWND save_button = CreateWindowA("Button", "Save", WS_VISIBLE | WS_CHILD, (int)((225 - 50)/2), 90, 50, 20, hWnd, (HMENU)SAVE_FILE_BUTTON, NULL, NULL);
+	HWND save_button = CreateWindow("Button", "Save", WS_VISIBLE | WS_CHILD, (int)((225 - 50)/2), 90, 50, 20, hWnd, (HMENU)SAVE_FILE_BUTTON, NULL, NULL);
+	/* Version and Type display */
+	hWndVersion = CreateWindow("Edit", "", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_READONLY | ES_CENTER | ES_MULTILINE | SS_CENTER, (int)((225 - 150)/2), 120, 150, 40, hWnd, (HMENU)VERSION, NULL, NULL);
 	if (open_button == NULL || save_button == NULL || hWndListBox == NULL || hWndComboBox == NULL)
 		MessageBox(hWnd, TEXT("how did you even trigger this"), TEXT("GUI could not be initialized!"), MB_ICONEXCLAMATION); 
 }
@@ -192,10 +197,10 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 					file_name = open_file(hWnd);
 				case COMBOBOX:
 				case LISTBOX:
+				case VERSION:
 					break;
 				case SAVE_FILE_BUTTON:
 					save_file(hWnd, file_name);
-					break;
 			}
 			break;
 		case WM_CREATE: {

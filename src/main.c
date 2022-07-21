@@ -154,7 +154,7 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "Failed to open file %s! Do you have write permissions?", args.output);
 		return 1;
 	}
-	set_data(magic, args.version, outfile);
+	set_data(&magic, args.version, outfile);
 	fclose(outfile);
 	return 0;
 }
