@@ -9,6 +9,12 @@ jobs:
     name: Windows i686 (32-bit)
     runs-on: windows-latest
     steps:
+    - name: Cache MinGW
+      uses: actions/cache@v3
+      with:
+        path: C:\MinGW
+        key: MinGW
+
     - name: Setup MinGW
       run: |
         curl -L -o mingw-get.tar.xz https://sourceforge.net/projects/mingw/files/Installer/mingw-get/mingw-get-0.6.2-beta-20131004-1/mingw-get-0.6.2-mingw32-beta-20131004-1-bin.zip/download # https://osdn.net/projects/mingw/downloads/68260/mingw-get-0.6.3-mingw32-pre-20170905-1-bin.tar.xz
