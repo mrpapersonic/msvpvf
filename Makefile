@@ -1,21 +1,21 @@
-CC_FLAGS=-Wall -O2 -fstack-protector -fdata-sections -ffunction-sections
-LD_FLAGS=
+CFLAGS=-Wall -O2 -fstack-protector -fdata-sections -ffunction-sections
+LDFLAGS=
 
 ifeq ($(shell uname -s),Darwin)  # macOS is the odd one...
-	LD_FLAGS+=-Wl,-dead_strip
+	LDFLAGS+=-Wl,-dead_strip
 else
-	LD_FLAGS+=-Wl,--gc-sections
+	LDFLAGS+=-Wl,--gc-sections
 endif
 
 src/%.o : src/%.c
 	$(CC) -c $(CC_FLAGS) $< -o $@
 
 msvpvf: src/main.o src/common.o
-	$(CC) $(CC_FLAGS) -o $@ $^  $(LD_FLAGS)
+	$(CC) $(CFLAGS) -o $@ $^  $(LDFLAGS)
 
 # GUI is windows-only, please use cross-compiler!
 gui: src/gui.o src/common.o
-	$(CC) $(CC_FLAGS) -o $@ $^ $(LD_FLAGS) -mwindows
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) -mwindows
 
 clean:
 	rm -f src/*.o *.exe msvpvf gui
