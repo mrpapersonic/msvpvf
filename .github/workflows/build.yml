@@ -31,8 +31,8 @@ jobs:
       run: |
         set PATH=C:\MinGW\bin;%PATH%
         set CC=mingw32-gcc
-        mingw32-make CC_FLAGS=-static
-        mingw32-make gui CC_FLAGS=-static
+        mingw32-make CFLAGS=-static
+        mingw32-make gui CFLAGS=-static
         strip msvpvf.exe
         strip gui.exe
       shell: cmd
@@ -66,8 +66,8 @@ jobs:
     - name: make
       run: |
         export CC=clang
-        make CC_FLAGS=-static
-        make gui CC_FLAGS=-static
+        make CFLAGS=-static
+        make gui CFLAGS=-static
         strip msvpvf.exe
         strip gui.exe
 
