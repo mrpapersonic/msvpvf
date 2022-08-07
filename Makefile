@@ -8,7 +8,7 @@ else
 endif
 
 src/%.o : src/%.c
-	$(CC) -c $(CC_FLAGS) $< -o $@
+	$(CC) -c $(CFLAGS) $< -o $@
 
 msvpvf: src/main.o src/common.o
 	$(CC) $(CFLAGS) -o $@ $^  $(LDFLAGS)
