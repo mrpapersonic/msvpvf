@@ -24,6 +24,8 @@
 **/
 #include <stdio.h>
 #include <windows.h>
+#include <shellapi.h>
+#include <shlwapi.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <commdlg.h>
@@ -46,14 +48,14 @@ enum types {
 	vf,
 	veg
 } type;
-char* file_name = " ";
+char file_name[257] = {'\0'};
 
 void display_file(char* path) {
 	/* Read the file to memory */
 	FILE* file;
 	file = fopen(path, "rb");
 	fseek(file, 0x46, SEEK_SET);
-	int f_version = fgetc(file);
+	int f_version = fgetc(file)+1;
 	fseek(file, 0x18, SEEK_SET);
 	TCHAR p[32];
 	switch (fgetc(file)) {
@@ -67,14 +69,13 @@ void display_file(char* path) {
 			snprintf(p, 32, "File version: %s %d", "Unknown", f_version);
 			break;
 	}
-	printf("%s", p);
 	SendMessage(hWndVersion, WM_SETTEXT, (WPARAM)0, (LPARAM)p);
 	fclose(file);
 }
 
 char* open_file(HWND hWnd) {
 	OPENFILENAME ofn;
-	char filename[256];
+	char* filename = calloc(256, sizeof(char));
 
 	ZeroMemory(&ofn, OPENFILENAME_SIZE_VERSION_400);
 	ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;
@@ -91,7 +92,7 @@ char* open_file(HWND hWnd) {
 
 	display_file(filename);
 
-	return strdup(filename);
+	return filename;
 }
 
 void save_file(HWND hWnd, char* input_file) {
@@ -103,13 +104,16 @@ void save_file(HWND hWnd, char* input_file) {
 		return;
 	}
 	OPENFILENAME ofn;
-	char output_file[256];
+	char output_file[256] = {'\0'}, *input_basename = strdup(input_file);
+	PathStripPath(input_basename);
+	int amt_of_ch = snprintf(output_file, 256, "PRO_V%d_", version);
+	if (256-amt_of_ch > 0)
+		strncat(output_file, input_basename, 256-amt_of_ch);
 
 	ZeroMemory(&ofn, OPENFILENAME_SIZE_VERSION_400);
 	ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;
 	ofn.hwndOwner = hWnd;
 	ofn.lpstrFile = output_file;
-	ofn.lpstrFile[0] = '\0';
 	ofn.nMaxFile = 256;
 	ofn.lpstrFilter = "Movie Studio project files\0*.vf\0VEGAS Pro project files\0*.veg\0All files\0*.*\0";
 	ofn.nFilterIndex = (int)type+1;
@@ -127,10 +131,11 @@ void save_file(HWND hWnd, char* input_file) {
 		MessageBox(hWnd, TEXT("Failed to save project file!"), TEXT("Saving project failed!"), MB_ICONEXCLAMATION); 
 		return;
 	}
-	unsigned char magic_veg[] = {0xEF, 0x29, 0xC4, 0x46, 0x4A, 0x90, 0xD2, 0x11, 0x87, 0x22, 0x00, 0xC0, 0x4F, 0x8E, 0xDB, 0x8A};
-	unsigned char magic_vf[] = {0xF6, 0x1B, 0x3C, 0x53, 0x35, 0xD6, 0xF3, 0x43, 0x8A, 0x90, 0x64, 0xB8, 0x87, 0x23, 0x1F, 0x7F};
 
-	set_data(type == veg ? magic_veg : magic_vf, version, output);
+	unsigned char magic_veg[] = {0xEF, 0x29, 0xC4, 0x46, 0x4A, 0x90, 0xD2, 0x11, 0x87, 0x22, 0x00, 0xC0, 0x4F, 0x8E, 0xDB, 0x8A};
+	unsigned char magic_vf[]  = {0xF6, 0x1B, 0x3C, 0x53, 0x35, 0xD6, 0xF3, 0x43, 0x8A, 0x90, 0x64, 0xB8, 0x87, 0x23, 0x1F, 0x7F};
+
+	set_data(type == veg ? magic_veg : magic_vf, version-1, output);
 
 	fclose(output);
 }
@@ -140,11 +145,8 @@ void AddControls(HWND hWnd) {
 	hWndComboBox = CreateWindow("ComboBox", NULL,
 								 CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | WS_VSCROLL,
 								 (int)((225 - 50)/2), 30, 50, 200, 
-								 hWnd, (HMENU)COMBOBOX, NULL, NULL); /**
-																	  * I don't understand what half of 
-																	  * these arguments are for, so chances
-																	  * are that you don't either. 
-																	 **/
+								 hWnd, (HMENU)COMBOBOX, NULL, NULL);
+
 	TCHAR versions[][10] = {TEXT("8"),  TEXT("9"),  TEXT("10"), 
 							TEXT("11"), TEXT("12"), TEXT("13"), 
 							TEXT("14"), TEXT("15"), TEXT("16"), 
@@ -189,7 +191,7 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 			}
 			switch(wParam) {
 				case OPEN_FILE_BUTTON:
-					file_name = open_file(hWnd);
+					strncpy(file_name, open_file(hWnd), 256);
 				case COMBOBOX:
 				case LISTBOX:
 				case VERSION:
@@ -205,6 +207,12 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 		}
 		case WM_DESTROY:
 			PostQuitMessage(0);
+			break;
+		case WM_DROPFILES:
+			/* Drag and drop support */
+			HDROP hDrop = (HDROP)wParam;
+			DragQueryFile(hDrop, 0, file_name, 256);
+			display_file(file_name);
 			break;
 		default:
 			return DefWindowProc(hWnd, msg, wParam, lParam);
@@ -223,7 +231,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR args, int
 
 	if (!RegisterClass(&wc)) return -1;
 
-	CreateWindow(TEXT("msvpvf"), TEXT("Movie Studio / Vegas Pro version spoofer"), WS_OVERLAPPED | WS_VISIBLE | WS_MINIMIZEBOX | WS_SYSMENU, 100, 100, 225, 200, NULL, NULL, hInstance, NULL);
+	CreateWindowEx(WS_EX_ACCEPTFILES, TEXT("msvpvf"), TEXT("Movie Studio / Vegas Pro version spoofer"), WS_OVERLAPPED | WS_VISIBLE | WS_MINIMIZEBOX | WS_SYSMENU, 100, 100, 225, 200, NULL, NULL, hInstance, NULL);
 
 	MSG msg = {0};
 

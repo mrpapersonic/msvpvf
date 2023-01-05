@@ -15,7 +15,7 @@ msvpvf: src/main.o src/common.o
 
 # GUI is windows-only, please use cross-compiler!
 gui: src/gui.o src/common.o
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) -mwindows
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) -mwindows -lshlwapi
 
 clean:
 	rm -f src/*.o *.exe msvpvf gui
