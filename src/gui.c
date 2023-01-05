@@ -208,12 +208,13 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			break;
-		case WM_DROPFILES:
+		case WM_DROPFILES: {
 			/* Drag and drop support */
 			HDROP hDrop = (HDROP)wParam;
 			DragQueryFile(hDrop, 0, file_name, 256);
 			display_file(file_name);
 			break;
+		}
 		default:
 			return DefWindowProc(hWnd, msg, wParam, lParam);
 	}
