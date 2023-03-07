@@ -10,6 +10,15 @@ Currently, the GUI doesn't look that great. Making pretty apps with `windows.h` 
 
 It is based on an old tool under the same name that was written in C#/.NET, but the original website is now down and it hasn't been maintained in over 2 years.
 
+# Compatibility
+There are 3 generations of modern Vegas project files:
+
+Gen 1 | Gen 2 | Gen 3
+--- | --- | ---
+8.0 - 11.0 | 12.0 - 14.0 | 15.0 - Now
+
+Any version in Gen 3 cannot be ported to Gen 2, and Gen 2 cannot be ported to Gen 1. That's just too complicated for a simple bit modifier. **However**, any file created in an older Vegas will work in a newer one.
+
 ## Compilation
 ```
 git clone https://github.com/mrpapersonic/msvpvf
