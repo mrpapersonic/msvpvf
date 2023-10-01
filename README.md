@@ -1,4 +1,6 @@
 # msvpvf
+This repository has moved to [sourcehut](https://sr.ht/~mrpapersonic/msvpvf/). All future development will happen there.
+
 C port of [msvpvf](https://archive.org/details/msvpvf-1.3-movie-studio-vegas-pro-version-faker-msvpvf-updated-to-1.31-focus-on-vegas)
 
 ![msvpvf CI](https://github.com/mrpapersonic/msvpvf/actions/workflows/build.yml/badge.svg)
